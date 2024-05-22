@@ -1,0 +1,139 @@
+<table>
+    <thead>
+        <tr>
+            <th colspan="2">Team</th>
+            <th>Period</th>
+            <th>Time</th>
+            <th>Player</th>
+            <th>Assist 1</th>
+            <th>Assist 2</th>
+            <th>Notes</th>
+            <th>Goal Type</th>
+            <th>Edit</th> 
+        </tr>
+    </thead>
+    <tbody>
+        <% gameScoreSummary.goalsListResult.forEach(goal => { %>
+        <tr>
+            <td class="editable" data-field="gamescore_id" data-id="<%= goal.gamescore_id %>">
+                <button class="delete-entry" data-entrytype="goalscore" data-entryid="<%= goal.gamescore_id %>">Delete</button>
+                <input type="hidden" name="gamescore_id" value="<%= goal.gamescore_id %>"> </td>
+            <td class="editable" data-field="gamescore_team" data-teamID="<%= goal.gamescore_team.team_id %>">
+                <%= goal.gamescore_team.team_name %>
+            </td>
+            <td class="editable" data-field="gamescore_period" data-period="<%= goal.gamescore_period %>">
+                <%= goal.gamescore_period %>
+            </td>
+            <td class="editable" data-field="gamescore_time" data-period="<%= goal.gamescore_time %>">
+                <%= goal.gamescore_time %>
+            </td>
+            <td class="editable" data-field="gamescore_player" <% if (goal.gamescore_player === '' ||goal.gamescore_player === 'undefined' || !goal.gamescore_player) { %> data-playerid="0" <% } else { %>data-playerid="<%= goal.gamescore_player.player_id %>" <% } %>">
+                <% if (goal.gamescore_player == 'Unassisted' ||goal.gamescore_player == '' || !goal.gamescore_player || goal.gamescore_player === 'undefined') { %>
+                    Unassigned
+                <% } else { %>
+                    <%= goal.gamescore_player.player_first %>
+                    <%= goal.gamescore_player.player_last %>
+                <% } %>
+            </td>
+            <td class="editable" data-field="gamescore_assist1" <% if (goal.gamescore_assist1 === 'Unassisted' || goal.gamescore_assist1 === '' ||goal.gamescore_assist1 === 'undefined' || !goal.gamescore_assist1) { %> data-playerid="0" <% } else { %>data-playerid="<%= goal.gamescore_assist1.player_id %>" <% } %>">
+                <% if (goal.gamescore_assist1 == 'Unassisted' ||goal.gamescore_assist1 == '' || !goal.gamescore_assist1 || goal.gamescore_assist1 === 'undefined') { %>
+                    -
+                <% } else { %>
+                    <%= goal.gamescore_assist1.player_first %>
+                    <%= goal.gamescore_assist1.player_last %>
+                <% } %>
+            </td>
+            <td class="editable" data-field="gamescore_assist2" <% if (goal.gamescore_assist2 === 'Unassisted' || goal.gamescore_assist2 === '' ||goal.gamescore_assist2 === 'undefined' || !goal.gamescore_assist2) { %> data-playerid="0" <% } else { %>data-playerid="<%= goal.gamescore_assist2.player_id %>" <% } %>">
+                <% if (goal.gamescore_assist2 == 'Unassisted' ||goal.gamescore_assist2 == '' || !goal.gamescore_assist2 ||goal.gamescore_assist2 === 'undefined') { %>
+                 -
+                <% } else { %>
+                    <%= goal.gamescore_assist2.player_first %>
+                    <%= goal.gamescore_assist2.player_last %>
+                <% } %>
+            </td>
+            <td class="editable" data-field="gamescore_notes" data-id="<%= goal.gamescore_notes %>">
+                <%= goal.gamescore_notes %>
+            </td>
+            <td class=" editable" data-field="gamescore_type" data-goaltype="<%= goal.gamescore_type %>">
+                <%= goal.gamescore_type %>
+            </td>
+            <td> <button class="edit-icon">Edit</button> </td>
+        </tr>
+        <% }); %>
+    </tbody>
+</table>
+<form id="goalScoreTeamForm" method="POST" action="/gamestats/<%= schedule.schedule_id %>/goalscore">
+    <input type="hidden" name="attendance_game" value="<%= schedule.schedule_id %>">
+    <fieldset>
+        <legend>Enter Goal:</legend>
+        <div> <label>Team</label> <select name="gamescore_team" class="choose-team required" data-playerdiv="gamescore_player_load">
+                <option value="">Select Team</option>
+                <option value="<%= schedule.home_team_id %>">
+                    <%= schedule.home_team_name %>
+                </option>
+                <option value="<%= schedule.visitor_team_id %>">
+                    <%= schedule.visitor_team_name %>
+                </option>
+            </select> 
+        </div>
+        <div> <label>Period</label> <select name="gamescore_period" class="required">
+                <option value="">Choose Period</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">OT</option>
+            </select> 
+        </div>
+        <div> 
+            <label>Time of Goal</label>
+            <div> 
+                <input type="number" value="" name="gamescore_minutes" placeholder="Minutes" max="10" maxlength="2" class="required"> 
+            </div>
+            <div> 
+                <input type="number" value="" name="gamescore_seconds" placeholder="Seconds" max="59" maxlength="2" class="required"> 
+            </div>
+        </div>
+        <div> 
+            <label>Goal</label>
+            <select name="gamescore_player" class="load-players required gamescore_player_load">
+                <option value="">Select a Team</option>
+            </select> 
+        </div>
+        <div> 
+            <label>Assist 1</label>
+            <select name="gamescore_assist1" class="load-players gamescore_player_load">
+                <option value="">Select a Team</option>
+            </select> 
+        </div>
+        <div> 
+            <label>Assist 2</label>
+            <select name="gamescore_assist2" class="load-players gamescore_player_load">
+                <option value="">Select a Team</option>
+            </select> 
+        </div>
+        <div id="goalType"> 
+            <label>Goal Type</label> 
+            <input type="checkbox" name="gamescore__type[]" value="PPG" id="PPG">
+            <label for="PPG">PPG</label> 
+            <input type="checkbox" name="gamescore__type[]" value="SHG" id="SHG">
+            <label for="SHG">SHG</label> 
+            <input type="checkbox" name="gamescore__type[]" value="GWG" id="GWG">
+            <label for="GWG">GWG</label> 
+            <input type="checkbox" name="gamescore__type[]" value="ENG" id="ENG">
+            <label for="ENG">ENG</label> 
+            <input type="checkbox" name="gamescore__type[]" value="OTG" id="OTG">
+            <label for="OTG">OTG</label> 
+            <input type="checkbox" name="gamescore__type[]" value="PSG" id="PSG">
+            <label for="PSG">PSG</label> 
+            <input type="checkbox" name="gamescore__type[]" value="mPSG" id="mPSG">
+            <label for="mPSG">mPSG</label> 
+        </div>
+        <div> 
+            <label>Notes</label>
+            <input type="text" placeholder="Enter Notes" name="notes" value=""> 
+        </div>
+        <div>
+            <input type="submit" class="button success radius right" value="Submit"> 
+        </div>
+    </fieldset>
+</form>

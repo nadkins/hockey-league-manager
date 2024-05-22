@@ -1,0 +1,101 @@
+<form id="addShootoutForm" method="POST" action="/gamestats/penalty/<%= schedule.schedule_id %>">
+  <input type="hidden" name="penalty" value="<%= schedule.schedule_id %>">
+    <fieldset>
+      <legend>Enter Penalty:</legend>
+      <div class="large-4 medium-4 columns">
+        <label>Team
+          <select name="penalty_team" class="choose-team required" data-playerdiv="load-penalty-players">
+            <option value="">Select Team</option>
+            <option value="<%= schedule.home_team_id %>">
+                <%= schedule.home_team_name %>
+            </option>
+            <option value="<%= schedule.visitor_team_id %>">
+                <%= schedule.visitor_team_name %>
+            </option>
+          </select>
+        </label>
+      </div>
+      <div class="large-4 medium-4 columns">
+        <label>Penalty
+          <select name="penalty_penalty" class="required">
+            <option value="">Choose Penalty</option>
+            <option value="Abuse of Officials">Abuse of Officials</option>
+            <option value="Boarding">Boarding</option>
+            <option value="Cross-checking">Cross-checking</option>
+            <option value="Delay of game">Delay of game</option>
+            <option value="Diving">Diving</option>
+            <option value="Game Misconduct">Game Misconduct</option>
+            <option value="Goalkeeper Interference">Goalkeeper Interference</option>
+            <option value="Elbowing">Elbowing</option>
+            <option value="High-sticking">High-sticking</option>
+            <option value="Holding">Holding</option>
+            <option value="Holding the Stick">Holding the Stick</option>
+            <option value="Hooking">Hooking</option>
+            <option value="Interference">Interference</option>
+            <option value="Misconduct">Misconduct</option>
+            <option value="Playing with a Broken Stick">Playing with a Broken Stick</option>
+            <option value="Roughing">Roughing</option>
+            <option value="Fighting">Fighting</option>
+            <option value="Slashing">Slashing</option>
+            <option value="Sliding/Clipping">Sliding/Clipping</option>
+            <option value="Too Many Players">Too Many Players</option>
+            <option value="Tripping">Tripping</option>
+            <option value="Unsportsmanlike Conduct">Unsportsmanlike Conduct</option>
+            <option value="Other">Other</option>
+          </select>
+        </label>
+      </div>
+      <div class="large-4 medium-4 columns">
+        <label>Minutes
+          <select name="penalty_minutes" class="required">
+            <option value="">Choose Minutes</option>
+            <option value="2">2</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="Game">Game</option>
+          </select>
+        </label>
+      </div>
+      <div class="large-4 medium-4 columns">
+        <label>Player Name
+          <select name="penalty_player" class="load-penalty-players required">
+            <option value="">Select a Team</option>
+          </select>
+        </label>
+      </div>
+      <div class="large-4 medium-4 columns">
+        <label>Player Serving
+          <select name="penalty_serving" class="load-penalty-players" disabled="disabled">
+            <option value="">Only for Bench Penalty</option>
+          </select>
+        </label>
+      </div>
+      <div class="large-4 medium-4 columns">
+        <div class="medium-6 columns np">
+          <label>Period
+            <select name="penalty_period" class="required">
+              <option value="">Choose Period</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">OT</option>
+            </select>
+          </label>
+        </div>
+        <div class="medium-6 columns nrp">
+          <label>Time of Penalty
+            <div class="medium-6 columns np">
+              <input name="minutes" value="0" type="number" placeholder="Minutes" max="10" maxlength="2" class="required">
+            </div>
+            <div class="medium-6 columns np">
+              <input name="seconds" type="number" value="0" placeholder="Seconds" max="59" maxlength="2" class="required">
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="medium-12 columns">
+        <input type="submit" class="button success radius right" value="Submit">
+      </div>
+    </fieldset>
+  </form>

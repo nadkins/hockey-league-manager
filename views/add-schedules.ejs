@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+		<head>
+		<%- include('./headtag'); %>
+	</head>
+	<body>
+		<%- include('./navbar'); %>
+
+		<h1>Add New Game for <%= season.season_name %></h1>
+
+		<!-- Add New Game Form -->
+		<form id="addGameForm" action="/schedules/add" method="post">
+			<input type="hidden" id="schedule_season" name="schedule_season" value="<%= season.season_id %>" />
+			<label for="schedule_week">Week:</label>
+			<input type="number" id="schedule_week" name="schedule_week" required />
+			<br /><br />
+			<label for="schedule_time">Date and Time:</label>
+			<input type="datetime-local" id="schedule_time" name="schedule_time" required />
+			<br /><br />
+			<label for="schedule_home">Home Team:</label>
+			<select id="schedule_home" name="schedule_home" required>
+				<option value="">Choose Team</option>
+				<% teams.forEach(team => { %>
+				<option value="<%= team.team_id %>"><%= team.team_name %></option>
+				<% }); %>
+			</select>
+			<br /><br />
+			<label for="schedule_visitor">Away Team:</label>
+			<select id="schedule_visitor" name="schedule_visitor" required>
+				<option value="">Choose Team</option>
+				<% teams.forEach(team => { %>
+				<option value="<%= team.team_id %>"><%= team.team_name %></option>
+				<% }); %>
+			</select>
+			<br /><br />
+			<label for="schedule_sk_team">Scorekeeper Team:</label>
+            <select id="schedule_sk_team" name="schedule_sk_team" required>
+                <% teams.forEach(team => { %>
+                    <option value="<%= team.team_id %>" <% if (team.team_id === "") { %> selected <% } %>><%= team.team_name %></option>
+                <% }); %>
+            </select>
+			<br /><br />
+			<label for="schedule_scorekeeper">Score Keeper:</label>
+			<select id="schedule_scorekeeper" name="schedule_scorekeeper" required>
+				<!-- Scorekeeper options will be dynamically populated here -->
+				<option value="">Choose Team First</option>
+			</select>
+			<br /><br />
+			<label for="schedule_ref1">Referee 1:</label>
+
+            <select id="schedule_ref1" name="schedule_ref1" required>
+                <% players.forEach(player => { %>
+                    <option value="<%= player.player_id %>"><%= player.player_id === 1 ? 'TBD' : player.player_first + ' ' + player.player_last %></option>
+                <% }); %>
+            </select>
+            <br /><br />
+            <label for="schedule_ref2">Referee 2:</label>
+            <select id="schedule_ref2" name="schedule_ref2" required>
+                <% players.forEach(player => { %>
+                    <option value="<%= player.player_id %>"><%= player.player_id === 1 ? 'TBD' : player.player_first + ' ' + player.player_last %></option>
+                <% }); %>
+            </select>
+            <br /><br />
+            <label for="schedule_ref3">Referee 3:</label>
+            <select id="schedule_ref3" name="schedule_ref3" required>
+                <% players.forEach(player => { %>
+                    <option value="<%= player.player_id %>"><%= player.player_id === 1 ? 'TBD' : player.player_first + ' ' + player.player_last %></option>
+                <% }); %>
+            </select>
+            <br /><br />
+            <label for="schedule_ref4">Referee 4:</label>
+            <select id="schedule_ref4" name="schedule_ref4" required>
+                <% players.forEach(player => { %>
+                    <option value="<%= player.player_id %>"><%= player.player_id === 1 ? 'TBD' : player.player_first + ' ' + player.player_last %></option>
+                <% }); %>
+            </select>
+            <br /><br />
+
+
+			<!-- Checkbox for schedule_postponed -->
+			<label for="schedule_postponed">Postponed:</label>
+			<input type="checkbox" id="schedule_postponed" name="schedule_postponed" />
+			<br /><br />
+
+			<label for="schedule_makeup">This is a makeup game:</label>
+			<input type="radio" id="schedule_makeup_1" name="schedule_makeup" value="1" />
+			<label for="schedule_makeup_1">Yes</label>
+			<input type="radio" id="schedule_makeup_0" name="schedule_makeup" value="0" checked />
+			<label for="schedule_makeup_0">No</label>
+
+			<br /><br />
+			<div id="schedule_makeup" style="display: none">
+				<label for="schedule_makeupwk">Schedule Week:</label>
+				<select id="schedule_makeupwk" name="schedule_makeupwk">
+					<% for (let i = 1; i <= totalWeeks; i++) { %>
+					<option value="<%= i %>">Week <%= i %></option>
+					<% } %>
+				</select>
+				<br /><br />
+				<!-- Add the matchups dropdown -->
+				<label for="schedule_makeupgm">Matchup:</label>
+				<select id="schedule_makeupgm" name="schedule_makeupgm">
+					<option value="0">Select Week</option>
+					<!-- Matchup options will be dynamically populated here -->
+				</select>
+				<br /><br />
+			</div>
+
+			<button type="submit">Add Game</button>
+		</form>
+
+		<!-- Include any additional JavaScript scripts here -->
+		<script>
+			// Function to populate matchups select based on selected week and season
+			function populateMatchupsSelect(week, season) {
+				fetch(`/schedules/matchups/${season}/${week}`) // Replace with actual route to fetch matchups
+					.then((response) => response.json())
+					.then((matchups) => {
+						const matchupSelect = document.getElementById("schedule_makeupgm");
+						matchupSelect.innerHTML = ""; // Clear existing options
+						//
+						matchups.forEach((matchup) => {
+							const option = document.createElement("option");
+							option.value = matchup.schedule_id;
+							option.textContent = `${matchup.home_team_name} vs ${matchup.away_team_name}`;
+							matchupSelect.appendChild(option);
+						});
+					})
+					.catch((error) => console.error("Error fetching matchups:", error));
+			}
+
+			// Function to populate score keeper select based on selected team
+			function populateScoreKeeperSelect(teamId) {
+				fetch(`/teams/edit/${teamId}/players`) // Replace with actual route to fetch players of a team
+					.then((response) => response.json())
+					.then((players) => {
+						const scoreKeeperSelect = document.getElementById("schedule_scorekeeper");
+						if (!scoreKeeperSelect) {
+							console.error("Score keeper select not found");
+							return;
+						}
+
+						scoreKeeperSelect.innerHTML = ""; // Clear existing options
+						players.forEach((player) => {
+							const option = document.createElement("option");
+							option.value = player.player_id;
+							option.text = `${player.player_first} ${player.player_last}`;
+							scoreKeeperSelect.appendChild(option);
+						});
+					})
+					.catch((error) => console.error("Error fetching players:", error));
+			}
+
+			document.addEventListener("DOMContentLoaded", () => {
+				const scheduleMakeupRadioButtons = document.querySelectorAll('input[name="schedule_makeup"]');
+
+				// Add event listener for radio button change
+				scheduleMakeupRadioButtons.forEach((radioButton) => {
+					radioButton.addEventListener("change", (event) => {
+						const makeupGMValue = event.target.value;
+
+						// Toggle the visibility of the schedule_makeup div based on the selected value
+						const scheduleMakeupDiv = document.getElementById("schedule_makeup");
+						if (makeupGMValue === "1") {
+							scheduleMakeupDiv.style.display = "block";
+						} else {
+							scheduleMakeupDiv.style.display = "none";
+						}
+					});
+				});
+
+				// Manually trigger the change event on the radio button initially
+				const initialMakeupGMValue = document.querySelector('input[name="schedule_makeup"]:checked').value;
+				const scheduleMakeupDiv = document.getElementById("schedule_makeup");
+				if (initialMakeupGMValue === "1") {
+					scheduleMakeupDiv.style.display = "block";
+				} else {
+					scheduleMakeupDiv.style.display = "none";
+				}
+
+				const scheduleWeekSelect = document.getElementById("schedule_makeupwk");
+				const initialWeek = scheduleWeekSelect.value; // Get initial selected week
+
+				// Populate matchups select with matchups of initial week
+				populateMatchupsSelect(initialWeek, 1); // Assuming season ID is 1, replace it with actual season ID
+				
+				// Add event listener for week change
+				scheduleWeekSelect.addEventListener("change", (event) => {
+					const selectedWeek = event.target.value;
+					populateMatchupsSelect(selectedWeek, 1); // Assuming season ID is 1, replace it with actual season ID
+				});
+
+				const scoreKeeperTeamSelect = document.getElementById("schedule_sk_team");
+				const initialTeamId = scoreKeeperTeamSelect.value; // Get initial selected team
+
+				// Populate score keeper select with players of initial team
+				populateScoreKeeperSelect(initialTeamId);
+
+				// Add event listener for team change
+				scoreKeeperTeamSelect.addEventListener("change", (event) => {
+					const selectedTeamId = event.target.value;
+					populateScoreKeeperSelect(selectedTeamId);
+				});
+			});
+		</script>
+	</body>
+</html>

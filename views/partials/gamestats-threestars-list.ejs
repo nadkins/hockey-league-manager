@@ -1,0 +1,18 @@
+    <table>
+        <thead>
+            <tr>
+                <th>Player</th>
+                <th>Rank</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% starsSummary.forEach(star => { %>
+                <tr>
+                    <td><%= star.star_player.player_first %> <%= star.star_player.player_last %></td>
+                    <td><%= star.star_rank %></td>
+                    <td><%= star.star_notes %></td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>

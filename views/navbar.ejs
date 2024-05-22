@@ -1,0 +1,14 @@
+<nav class="global-navigation">
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/players">Players</a></li>
+        <li><a href="/seasons">Seasons</a></li>
+        <li><a href="/teams">Teams</a></li>
+        <li><a href="/schedules">Schedules</a></li>
+        <% if (username) { %>
+            <li><a href="/logout">Logout <%= username %></a></li>
+        <% } else { %>
+            <li><a href="/login">Login</a></li>
+        <% } %>
+    </ul>
+</nav>

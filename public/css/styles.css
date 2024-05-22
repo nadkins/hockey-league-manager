@@ -1,0 +1,237 @@
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+
+body {
+    line-height: 1;
+}
+
+ol, ul {
+    list-style: none;
+}
+
+blockquote, q {
+    quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* Global Styling */
+.grid {
+    display: grid;
+}
+
+.grid.attendance-team, #refForm {
+    grid-template-columns: 1fr 1fr;
+}
+
+.text-center {
+    text-align: center;
+}
+h1{
+    font-weight: bold;
+    font-size: 2rem;
+}
+
+/* Navigation */
+
+nav.global-navigation {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    background-color: #333;
+    padding: 10px;
+}
+
+nav.global-navigation ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+}
+
+nav.global-navigation li {
+    margin: 0 5px;
+}
+
+nav.global-navigation li a {
+    display: block;
+    padding: 10px;
+    color: #fff;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+nav.global-navigation li a:hover {
+    background-color: #555;
+}
+
+/* CSS for styling the form */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+}
+.container {
+    max-width: 800px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+form {
+    padding: 20px;
+}
+
+form label {
+    text-align: right;
+    padding-right: 10px;
+    line-height: 2.2;
+}
+
+form input,
+form select,
+form button {
+    padding: 8px;
+    font-size: 13px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+form button {
+    margin-top: 1rem;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    grid-column: span 2;
+}
+
+form button:hover {
+    background-color: #45a049;
+}
+
+img {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    grid-column: span 2;
+}
+
+/* CSS for styling the table */
+/* Customize as needed */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tbody tr:hover {
+    background-color: #ddd;
+}
+
+td:last-child {
+    text-align: center;
+}
+
+.edit-icon {
+    color: blue;
+    cursor: pointer;
+}
+
+.edit-icon:hover {
+    color: darkblue;
+}
+
+.players-list{
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    align-items: center;
+}
+.players-list table{
+    grid-column-start: 1;
+    grid-column-end: 3;
+    margin-top: 2rem;
+    border-top: 1px solid #000;
+}
+.players-add form{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+.players-add form div{
+    display: grid;
+    grid-template-columns: 1fr 1.25fr;
+    padding: 0.5rem 0;
+}
+.players-edit form{
+    display: grid;
+    grid-template-columns: 1fr 1.25fr;
+}
+.players-edit form div{
+    padding: 0 1rem;
+}
+.players-edit form div.players-picture{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column-start: 1;
+    grid-column-end: 3;
+    padding: 1rem;
+}

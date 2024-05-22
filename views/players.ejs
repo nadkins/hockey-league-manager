@@ -1,0 +1,98 @@
+<!-- views/home.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<%- include('./headtag'); %>
+        <!-- Include tablesorter UI theme -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/css/theme.default.min.css">
+	</head>
+<body>
+    <%- include('./navbar'); %>
+    <div class="container players-list">
+        <h1>SDFHL Player List</h1>
+        <a class="btn btn-primary" href="/players/add/">Add New Player</a>
+        <table id="playerTable" class="tablesorter">
+            <thead>
+                <tr>
+                    <th>Last Name</th>
+                    <th>First Name</th>
+                    <th>Positions</th>
+                    <th>Edit</th> <!-- New column for Edit -->
+                </tr>
+            </thead>
+            <tbody>
+                <% players.forEach(player => { %>
+                <tr>
+                    <td><%= player.player_last %></td>
+                    <td><%= player.player_first %></td>
+                    <td>
+                        <% const positions = player.player_positions.split(',').map(pos => {
+                            switch (pos.trim()) {
+                                case '1':
+                                    return 'Forward';
+                                case '2':
+                                    return 'Defense';
+                                case '3':
+                                    return 'Goalie';
+                                default:
+                                    return 'Unknown';
+                            }
+                        }); %>
+                        <%= positions.join(', ') %>
+                    </td>
+                    <td> <!-- Edit column with edit icon and link -->
+                        <a href="/players/edit/<%= player.player_id %>"><i class="fas fa-edit"></i></a>
+                    </td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <!-- Include jQuery and tablesorter script -->
+    <script nonce="<%= nonce %>" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script nonce="<%= nonce %>" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js"></script>
+
+    <!-- Include tablesorter pager script -->
+    <script nonce="<%= nonce %>" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.pager.min.js"></script>
+
+    <!-- Initialize tablesorter -->
+    <script nonce="<%= nonce %>">
+        $(document).ready(function(){
+            $("#playerTable").tablesorter({
+                theme: 'default', // Apply the default UI theme
+                widgets: ["filter", "pager"],
+                widgetOptions : {
+                    filter_external : '.search',
+                    filter_defaultFilter: { 1: '~{q}' },
+                    filter_columnFilters: false,
+                    pager_size: 10,
+                    pager_output: '{startRow} - {endRow} / {totalRows} ({totalPages})',
+                    pager_updateArrows: true,
+                    pager_startPage: 0,
+                    pager_fixedHeight: true,
+                    pager_removeRows: false,
+                    pager_savePages: true,
+                    pager_ajaxUrl: null,
+                    pager_ajaxError: null,
+                    pager_ajaxObject: {
+                        dataType: 'json'
+                    },
+                    pager_ajaxProcessing: null,
+                    pager_selectors: {
+                        container: '.pager',
+                        first: '.first',
+                        prev: '.prev',
+                        next: '.next',
+                        last: '.last',
+                        gotoPage: '.gotoPage',
+                        pageDisplay: '.pagedisplay',
+                        pageSize: '.pagesize'
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

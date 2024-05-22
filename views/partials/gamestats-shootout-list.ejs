@@ -1,0 +1,65 @@
+<h2>Shootout Summary</h2>
+<table>
+    <thead>
+        <tr>
+            <th colspan="2">Round</th>
+            <th>Team</th>
+            <th>Player</th>
+            <th>Goal</th>
+            <th>Team Goals (Round)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% 
+            // Initialize an object to store team goals for each round 
+            const teamGoalsByRound={}; 
+            // Loop through each shootout entry 
+            gameScoreSummary.shootoutInfo.forEach(shootout=> {
+                // If teamGoalsByRound doesn't have an entry for the team, initialize it
+                if (!teamGoalsByRound[shootout.shootout_team.team_name]) {
+                    teamGoalsByRound[shootout.shootout_team.team_name] = {};
+                }
+
+                // If teamGoalsByRound doesn't have an entry for the round, initialize it
+                if (!teamGoalsByRound[shootout.shootout_team.team_name][shootout.shootout_round]) {
+                    teamGoalsByRound[shootout.shootout_team.team_name][shootout.shootout_round] = 0;
+                }
+
+                // Increment the team's goals for the round
+                if (shootout.shootout_goal === 1) {
+                    teamGoalsByRound[shootout.shootout_team.team_name][shootout.shootout_round]++;
+                }
+            });
+
+            // Loop through each shootout entry again to render the table
+            gameScoreSummary.shootoutInfo.forEach(shootout => {
+        %>
+            <tr>
+                <td>
+                    <button class="delete-entry" data-entrytype="shootout" data-entryid="<%= shootout.shootout_id %>">Delete</button>
+                </td>
+                <td>
+                    <%= shootout.shootout_round %>
+                </td>
+                <td>
+                    <%= shootout.shootout_team.team_name %>
+                </td>
+                <td>
+                    <%= shootout.shootout_player.player_first %> <%= shootout.shootout_player.player_last %>
+                </td>
+                <td>
+                    <% if (shootout.shootout_goal===1) { %>
+                        Goal
+                    <% } else if (shootout.shootout_goal===2) { %>
+                        Did Not Shoot
+                    <% } else { %>
+                        No Goal
+                    <% } %>
+                </td>
+                <td>
+                    <%= teamGoalsByRound[shootout.shootout_team.team_name][shootout.shootout_round] || 0 %>
+                </td>
+            </tr>
+        <% }); %>
+    </tbody>
+</table>

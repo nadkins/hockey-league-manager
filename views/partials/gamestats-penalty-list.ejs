@@ -1,0 +1,36 @@
+<h2>Penalty Summary</h2>
+<table>
+    <thead>
+      <tr>
+        <th colspan="2">Team</th>
+        <th>Player</th>
+        <th>Penalty</th>
+        <th>Period</th>
+        <th>Minutes</th>
+        <th>Time</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% penaltySummary.forEach(penalty => { %>
+        <tr>
+          <td><button class="delete-entry" data-entrytype="penalty" data-entryid="<%= penalty.penalty_id %>">Delete</button></td>
+          <td><% if (penalty.penalty_team === '' ||penalty.penalty_team === 'undefined' || !penalty.penalty_team) { %>   <% } else { %><%= penalty.penalty_team.team_name %><% } %></td>
+          <td>
+          <% if (penalty.penalty_serving) { %>
+            <% if (penalty.penalty_serving === '' ||penalty.penalty_serving === 'undefined' || !penalty.penalty_serving) { %> No Player Assigned  <% } else { %><%= penalty.penalty_serving.player_first %> <%= penalty.penalty_serving.player_last %> (Serving)<% } %>
+          <% } else { %>
+            <% if (penalty.penalty_player === '' ||penalty.penalty_player === 'undefined' || !penalty.penalty_player) { %> No Player Assigned  <% } else { %><%= penalty.penalty_player.player_first %> <%= penalty.penalty_player.player_last %><% } %>
+          <% } %>
+          </td>
+          <td><%= penalty.penalty_penalty %></td>
+          <td><%= penalty.penalty_period %></td>
+          <td><%= penalty.penalty_minutes %></td>
+          <td><%= penalty.penalty_time %></td>
+          <td><%= penalty.penalty_notes %></td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+  
+  

@@ -1,0 +1,172 @@
+<!-- edit-team.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<%- include('./headtag'); %>
+	</head>
+<body>
+    
+    <%- include('./navbar'); %>
+
+    <h1>Edit Team</h1>
+    <form action="/teams/edit/<%= team.team_id %>" method="POST">
+        <div class="form-group">
+            <label for="team_season">Season</label>
+            <select id="team_season" name="team_season" class="form-control">
+                <% seasons.forEach((season) => { %>
+                    <option value="<%= season.season_id %>" <% if (season.season_id === team.team_season) { %> selected <% } %> ><%= season.season_name %></option>
+                <% }); %>
+            </select>
+        </div><br>
+
+        <label for="team_name">Team Name:</label>
+        <input type="text" id="team_name" name="team_name" value="<%= team.team_name %>"><br><br>
+<!-- 
+        <label for="team_division">Team Division:</label>
+        <input type="text" id="team_division" name="team_division" value="<%= team.team_division %>"><br><br> 
+-->
+
+        <label for="team_color">Team Color:</label>
+        <input type="text" id="team_color" name="team_color" value="<%= team.team_color %>"><br><br>
+
+        <label for="team_captain">Team Captain:</label>
+        <select id="team_captain" name="team_captain">
+            <% players.forEach(player => { %>
+                <option value="<%= player.player_id %>" <% if (player.player_id === team.team_captain) { %> selected <% } %>><%= player.player_first %> <%= player.player_last %></option>
+            <% }); %>
+        </select><br><br>
+
+        <label for="team_goalie">Team Goalie:</label>
+        <select id="team_goalie" name="team_goalie">
+            <% players.forEach(player => { %>
+                <% if (player.player_positions.includes('3')) { %>
+                    <option value="<%= player.player_id %>" data-pos="<%= player.player_positions %>" <% if (player.player_id === team.team_goalie) { %> selected <% } %>><%= player.player_first %> <%= player.player_last %></option>
+                <% } %>
+            <% }); %>
+        </select><br><br>
+
+        <label for="team_hex">Label Color:</label>
+        <input type="color" id="team_hex" name="team_hex" value="#<%= team.team_hex %>"><br><br>
+
+        <input type="radio" id="regular" name="team_season_playoff" value="0" <% if (team.team_season_playoff === 0) { %> checked <% } %>>
+        <label for="playoff_clinch">Regular Season</label><br><br>
+    
+        <input type="radio" id="playoff_clinch" name="team_season_playoff" value="<%= team.team_season + 1 %>" <% if (team.team_season_playoff !== 0) { %> checked <% } %>>
+        <label for="playoff_clinch">Playoffs</label><br><br>
+        
+        <div id="team_playoff_rank_wrapper" style="display: none;">
+        <select id="team_playoff_rank" name="team_playoff_rank">
+            <option value="99999">Eliminated</option>
+            <% for (let i = 1; i <= numTeams; i++) { %>
+                <option value="<%= i %>" <% if (team.team_playoff_rank == i) { %> selected <% } %>><%= i %></option>
+            <% } %>
+        </select><br><br>        
+        </div>
+        
+
+        <label for="team_players">Team Players:</label><br>
+        <div id="player_list">
+        <% teamPlayers.forEach(playerId => { %>
+            <% players.forEach(player => { %>
+                <% if (playerId === player.player_id) { %>
+                    <div id="player_wrap_<%= player.player_id %>">
+                        <input type="hidden" id="player_<%= player.player_id %>" name="team_players[]" value="<%= player.player_id %>">
+                        <label for="player_<%= player.player_id %>"><%= player.player_first %> <%= player.player_last %> </label>
+                        <i class="fas fa-trash" aria-hidden="true" onclick="removePlayer('<%= player.player_id %>')"></i><br>
+                    </div>
+                <% } %>
+            <% }); %>
+        <% }); %>
+        </div>
+        <br>
+
+        <label for="new_players">Add New Players:</label><br>
+        <select id="new_players" name="new_players[]" multiple>
+            <% players.forEach(player => { %>
+                <option value="<%= player.player_id %>"><%= player.player_first %> <%= player.player_last %></option>
+            <% }); %>
+        </select><br><br>
+        <button type="button" onclick="addNewPlayers()">Add Players</button><br><br>
+
+
+        <button type="submit">Update Team</button>
+    </form>
+    <a href="/teams/add/?seasonID=<%= team.team_season %>">Add New Team</a>
+    
+    <script>
+        // JavaScript function to delete player
+        function removePlayer(playerId) {
+            const confirmation = confirm("Are you sure you want to remove this player from the team?");
+            if (confirmation) {
+                const wrapper = document.getElementById(`player_wrap_${playerId}`);
+                wrapper.remove(); // Remove player from list
+            }
+        }
+        function addNewPlayers() {
+            const selectNewPlayers = document.getElementById('new_players');
+            const selectedOptions = selectNewPlayers.selectedOptions;
+
+            const playerList = document.getElementById('player_list');
+
+            for (let i = 0; i < selectedOptions.length; i++) {
+                const player = selectedOptions[i];
+                const playerName = player.text;
+                const playerId = player.value;
+
+                // Check if the player is not already in the team players list
+                if (!document.getElementById(`player_wrap_${playerId}`)) {
+                    const div = document.createElement('div');
+                    div.id = `player_wrap_${playerId}`;
+
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.id = `player_${playerId}`;
+                    hiddenInput.name = 'team_players[]';
+                    hiddenInput.value = playerId;
+
+                    const label = document.createElement('label');
+                    label.htmlFor = `player_${playerId}`;
+                    label.textContent = playerName;
+
+                    const trashIcon = document.createElement('i');
+                    trashIcon.classList.add('fas', 'fa-trash', 'trash-icon');
+                    trashIcon.setAttribute('aria-hidden', 'true');
+                    trashIcon.onclick = function() {
+                        removePlayer(playerId);
+                    };
+
+                    div.appendChild(hiddenInput);
+                    div.appendChild(label);
+                    div.appendChild(trashIcon);
+
+                    playerList.appendChild(div);
+                }
+            }
+        }
+       
+        // Function to toggle visibility of team_playoff_rank_wrapper based on radio button state
+        function togglePlayoffRankWrapper() {
+            const teamPlayoffRankWrapper = document.getElementById('team_playoff_rank_wrapper');
+            const selectedRadioValue = document.querySelector('input[name="team_season_playoff"]:checked').value;
+            
+            if (selectedRadioValue !== '0') {
+                teamPlayoffRankWrapper.style.display = 'block';
+            } else {
+                teamPlayoffRankWrapper.style.display = 'none';
+            }
+        }
+
+        // Execute the function on page load
+        togglePlayoffRankWrapper();
+
+        // Add event listener to the radio buttons
+        const playoffClinchRadio = document.getElementsByName('team_season_playoff');
+        for (let i = 0; i < playoffClinchRadio.length; i++) {
+            playoffClinchRadio[i].addEventListener('change', togglePlayoffRankWrapper);
+        }
+
+    </script>
+
+</body>
+</html>

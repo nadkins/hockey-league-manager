@@ -1,0 +1,28 @@
+<!-- seasons.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+		<head>
+		<%- include('./headtag'); %>
+		</head>
+	<body>
+		<%- include('./navbar'); %>
+		<div class="container">
+			<h1><%= title %></h1>
+			<a href="/seasons/add/">Add New Season</a>
+			<% if (seasons.length > 0) { %>
+			<ul>
+				<% seasons.forEach(season => { %>
+				<li><a href="/seasons/edit/<%= season.season_id %>"><%= season.season_name %></a>(<a href="/schedules/<%= season.season_id %>">edit Schedule)</a></li>
+				<!-- You can display other season details here -->
+				<% }); %>
+			</ul>
+			<% } else { %>
+			<p>No seasons found.</p>
+			<% } %>
+
+			<!-- Button to add a new season -->
+			<a href="/seasons/add"><button>Add New Season</button></a>
+		</div>
+	</body>
+</html>

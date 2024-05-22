@@ -1,0 +1,108 @@
+<form id="addShotForm" method="POST" action="/gamestats/stars/<%= schedule.schedule_id %>">
+    <input type="hidden" name="star_game" value="<%= schedule.schedule_id %>">
+    <input type="hidden" name="star_rank" value="1">
+      <fieldset>
+        <legend>Star One:</legend>
+        <div>
+            <label>Choose Team  
+                <select name="star_team" class="choose-team required" data-playerdiv="star_1_player_load">
+                    <option value="">Select Team</option>
+                    <option value="<%= schedule.home_team_id %>">
+                        <%= schedule.home_team_name %>
+                    </option>
+                    <option value="<%= schedule.visitor_team_id %>">
+                        <%= schedule.visitor_team_name %>
+                    </option>
+                </select>
+            </label>
+        </div>
+        <div class="large-12 columns">
+            <label>Player Name
+                <select name="star_player" id="star1" data-star="star1" class="star_1_player_load">
+                    <option value="">Select a Team</option>
+                </select>
+            </label>
+        </div>
+        <div class="large-12 columns">
+            <label>Notes
+                <textarea name="star_notes"></textarea>
+            </label>
+        </div>
+        <div class="large-12 columns align-right">
+            <input type="submit" class="button right small" value="Submit">
+        </div>
+    </div>
+    </fieldset>
+</form>
+<form id="addShotForm" method="POST" action="/gamestats/stars/<%= schedule.schedule_id %>">
+    <input type="hidden" name="star_game" value="<%= schedule.schedule_id %>">
+    <input type="hidden" name="star_rank" value="2">
+      <fieldset>
+        <legend>Star Two:</legend>
+        <div>
+            <label>Choose Team  
+                <select name="star_team" class="choose-team required" data-playerdiv="star_2_player_load">
+                    <option value="">Select Team</option>
+                    <option value="<%= schedule.home_team_id %>">
+                        <%= schedule.home_team_name %>
+                    </option>
+                    <option value="<%= schedule.visitor_team_id %>">
+                        <%= schedule.visitor_team_name %>
+                    </option>
+                </select>
+            </label>
+        </div>
+        <div class="large-12 columns">
+            <label>Player Name
+                <select name="star_player" id="star2" data-star="star2" class="star_2_player_load">
+                    <option value="">Select a Team</option>
+                </select>
+            </label>
+        </div>
+        <div class="large-12 columns">
+            <label>Notes
+                <textarea name="star_notes"></textarea>
+            </label>
+        </div>
+        <div class="large-12 columns align-right">
+            <input type="submit" class="button right small" value="Submit">
+        </div>
+    </div>
+    </fieldset>
+</form>
+<form id="addShotForm" method="POST" action="/gamestats/stars/<%= schedule.schedule_id %>">
+    <input type="hidden" name="star_game" value="<%= schedule.schedule_id %>">
+    <input type="hidden" name="star_rank" value="3">
+      <fieldset>
+        <legend>Star Three:</legend>
+        <div>
+            <label>Choose Team  
+                <select name="star_team" class="choose-team required" data-playerdiv="star_3_player_load">
+                    <option value="">Select Team</option>
+                    <option value="<%= schedule.home_team_id %>">
+                        <%= schedule.home_team_name %>
+                    </option>
+                    <option value="<%= schedule.visitor_team_id %>">
+                        <%= schedule.visitor_team_name %>
+                    </option>
+                </select>
+            </label>
+        </div>
+        <div class="large-12 columns">
+            <label>Player Name
+                <select name="star_player" id="star3" data-star="star3" class="star_3_player_load">
+                    <option value="">Select a Team</option>
+                </select>
+            </label>
+        </div>
+        <div class="large-12 columns">
+            <label>Notes
+                <textarea name="star_notes"></textarea>
+            </label>
+        </div>
+        <div class="large-12 columns align-right">
+            <input type="submit" class="button right small" value="Submit">
+        </div>
+    </div>
+    </fieldset>
+</form>

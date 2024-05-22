@@ -1,0 +1,191 @@
+<!-- add-team.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<%- include('./headtag'); %>
+	</head>
+<body>
+	<%- include('./navbar'); %>
+
+    <h1>Add Team</h1>
+    <form action="/teams/add" method="POST">
+
+        <input type="hidden" id="team_season_playoff" name="team_season_playoff" value="0" />
+        <input type="hidden" id="team_season_playoff" name="team_season_rank" value="0" />
+        <input type="hidden" id="team_season_playoff" name="team_division" value="Division 1" />
+
+        <div class="form-group">
+            <label for="team_season">Season</label>
+            <select id="team_season" name="team_season" class="form-control">
+                <% if (!selectedSeasonId) { %>
+                    <% seasons.forEach((season) => { %>
+                        <% if (season.season_active === 1) { %>
+                            <option value="<%= season.season_id %>" selected><%= season.season_name %></option>
+                        <% } else { %>
+                            <option value="<%= season.season_id %>"><%= season.season_name %></option>
+                        <% } %>
+                    <% }); %>
+                <% } else { %>
+                    <% seasons.forEach((season) => { %>
+                        <option value="<%= season.season_id %>" <% if (season.season_id === selectedSeasonId) { %> selected <% } %> ><%= season.season_name %></option>
+                    <% }); %>
+                <% } %>                 
+            </select>
+        </div><br>
+
+        <label for="team_name">Team Name:</label>
+        <input type="text" id="team_name" name="team_name" /><br /><br />
+
+        <label for="team_color">Shirt Color:</label>
+        <input type="text" id="team_color" name="team_color" /><br /><br />
+
+        <label for="team_captain">Team Captain:</label>
+        <select id="team_captain" name="team_captain" onchange="updateTeamCaptain()" required>
+			<option value="">Select Captain</option>
+            <% players.forEach(player => { %>
+                <option value="<%= player.player_id %>"><%= player.player_first %> <%= player.player_last %></option>
+            <% }); %>
+        </select><br /><br />
+
+        <label for="team_goalie">Team Goalie:</label>
+        <div id="selectedGoalies">
+            <!-- Selected goalies will be added here dynamically -->
+        </div>
+        <select id="goalieDropdown">
+            <% goaliePlayers.forEach(player => { %>
+                <option value="<%= player.player_id %>"><%= player.player_first %> <%= player.player_last %></option>
+            <% }); %>
+        </select>
+        <button type="button" onclick="addGoalie()">Add Goalie</button><br /><br />
+
+        <label for="team_hex">Label Color:</label>
+        <input type="color" id="team_hex" name="team_hex" /><br /><br />
+
+        <label for="team_players">Team Players:</label><br />
+        <div id="selectedPlayers">
+            <!-- Selected players will be added here dynamically -->
+        </div>
+        <select id="playerDropdown">
+            <% players.forEach(player => { %>
+                <option value="<%= player.player_id %>"><%= player.player_first %> <%= player.player_last %></option>
+            <% }); %>
+        </select>
+        <button type="button" onclick="addPlayer()">Add Player</button><br /><br />
+
+        <button type="submit">Add Team</button>
+    </form>
+
+    <script>
+		function updateTeamCaptain() {
+            const teamCaptainSelect = document.getElementById('team_captain');
+            const selectedCaptainId = teamCaptainSelect.value;
+            const selectedCaptainName = teamCaptainSelect.options[teamCaptainSelect.selectedIndex].text;
+
+            // Remove previous team captain from selected players section if exists
+            const selectedPlayersDiv = document.getElementById('selectedPlayers');
+            const previousCaptainInput = selectedPlayersDiv.querySelector('input[name="team_captain"]');
+            if (previousCaptainInput) {
+                previousCaptainInput.parentNode.remove();
+            }
+
+            // Add new team captain to selected players section
+            const newCaptainDiv = document.createElement('div');
+            newCaptainDiv.innerHTML = `
+                <span>${selectedCaptainName} (Captain)</span>
+                <i class="fas fa-trash trash-icon" onclick="removeCaptain(this)"></i>
+                <input type="hidden" name="team_players[]" value="${selectedCaptainId}">
+                <br>
+            `;
+            selectedPlayersDiv.appendChild(newCaptainDiv);
+        }
+
+        function removeCaptain(iconElement) {
+            const captainId = iconElement.parentElement.querySelector('input[type="hidden"]').value;
+            iconElement.parentElement.remove();
+
+            // Enable the corresponding option in the dropdown
+            const teamCaptainSelect = document.getElementById('team_captain');
+            const captainOption = teamCaptainSelect.querySelector(`option[value="${captainId}"]`);
+            captainOption.disabled = false;
+        }
+
+		function addGoalie() {
+			const goalieDropdown = document.getElementById('goalieDropdown');
+			const selectedGoalieId = goalieDropdown.value;
+			const selectedGoalieName = goalieDropdown.options[goalieDropdown.selectedIndex].text;
+
+			// Check if a goalie is already selected
+			const selectedGoalieInput = document.querySelector('#selectedGoalies input[type="hidden"]');
+			if (selectedGoalieInput) {
+				alert('A goalie is already added!');
+				return; // Exit function if goalie already added
+			}
+
+			// Create new goalie div
+			const selectedGoaliesDiv = document.getElementById('selectedGoalies');
+			const newGoalieDiv = document.createElement('div');
+			newGoalieDiv.innerHTML = `
+				<span>${selectedGoalieName}</span>
+				<i class="fas fa-trash trash-icon" onclick="removeGoalie(this)"></i>
+				<input type="hidden" name="team_goalie" value="${selectedGoalieId}">
+				<br>
+			`;
+			selectedGoaliesDiv.appendChild(newGoalieDiv);
+
+			// Disable the selected option in the dropdown
+			goalieDropdown.options[goalieDropdown.selectedIndex].disabled = true;
+		}
+
+
+        function removeGoalie(iconElement) {
+            const goalieId = iconElement.parentElement.querySelector('input[type="hidden"]').value;
+
+            // Enable the corresponding option in the dropdown
+            const goalieDropdown = document.getElementById('goalieDropdown');
+            const goalieOption = goalieDropdown.querySelector(`option[value="${goalieId}"]`);
+            goalieOption.disabled = false;
+
+            iconElement.parentElement.remove();
+        }
+
+        function addPlayer() {
+            const playerDropdown = document.getElementById('playerDropdown');
+            const selectedPlayerId = playerDropdown.value;
+            const selectedPlayerName = playerDropdown.options[playerDropdown.selectedIndex].text;
+
+            // Check if the player is already selected
+            const selectedPlayers = document.querySelectorAll('#selectedPlayers input[type="hidden"]');
+            for (let i = 0; i < selectedPlayers.length; i++) {
+                if (selectedPlayers[i].value === selectedPlayerId) {
+                    alert('Player already added!');
+                    return; // Exit function if player already added
+                }
+            }
+
+            const selectedPlayersDiv = document.getElementById('selectedPlayers');
+            const newPlayerDiv = document.createElement('div');
+            newPlayerDiv.innerHTML = `
+                <span>${selectedPlayerName}</span>
+                <i class="fas fa-trash trash-icon" onclick="removePlayer(this)"></i>
+                <input type="hidden" name="team_players[]" value="${selectedPlayerId}">
+                <br>
+            `;
+            selectedPlayersDiv.appendChild(newPlayerDiv);
+
+            // Disable the selected option in the dropdown
+            playerDropdown.options[playerDropdown.selectedIndex].disabled = true;
+        }
+
+        function removePlayer(iconElement) {
+            const playerId = iconElement.parentElement.querySelector('input[type="hidden"]').value;
+
+            // Enable the corresponding option in the dropdown
+            const playerDropdown = document.getElementById('playerDropdown');
+            const playerOption = playerDropdown.querySelector(`option[value="${playerId}"]`);
+            playerOption.disabled = false;
+
+            iconElement.parentElement.remove();
+        }
+    </script>
+</body>
+</html>

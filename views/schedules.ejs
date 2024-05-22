@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<%- include('./headtag'); %>
+	</head>
+<body>
+    <%- include('./navbar'); %>
+<div class="container">
+    <h1>Season Schedule</h1>
+    
+    <a href="/schedules/add/<%= seasonId %>" class="add-game-link">Add New Game</a>
+
+    <form id="seasonForm" action="/schedules" method="get">
+        <label for="season">Select a Season:</label>
+        <select name="seasonId" id="season">
+            <% seasons.forEach(season => { %>
+                <option value="<%= season.season_id %>" <%= season.season_id == seasonId ? 'selected' : '' %>><%= season.season_name %></option>
+            <% }); %>
+        </select>
+        <button type="submit">Go</button>
+    </form>
+
+    <!-- Loop through each unique week in the schedule -->
+<% let currentWeek = 0; %>
+<% schedule.forEach(game => { %>
+    <% if (game.schedule_week !== currentWeek) { %>
+        <!-- Start a new section for each unique week -->
+        <% if (currentWeek !== 0) { %>
+            </tbody>
+            </table>
+        <% } %>
+        <% currentWeek = game.schedule_week; %>
+        <h2>Week <%= currentWeek %> - <%= game.schedule_date %></h2>
+        <table class="schedule-table responsive" role="grid" style="width: 100%" id="week-<%= currentWeek %>">
+            <thead>
+                <tr>
+                    <th class="first">Time</th>
+                    <th>Home Team</th>
+                    <th>Away Team</th>
+                    <th>Score Keeper</th>
+                    <th>Referees</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+    <% } %>
+                <tr>
+                    <td>
+                        <a href="/schedules/edit/<%= game.schedule_id %>" class="edit-link"><i class="fa-solid fa-pen-to-square"></i></a>
+                        <%= game.schedule_time %>
+                    </td>
+                    <td class="home_team_name"><%= game.home_team_name %></td>
+                    <td class="away_team_name"><%= game.away_team_name %></td>
+                    <td>
+                        <% if (game.scorekeeper_first) { %>
+                            <%= game.scorekeeper_first %> <%= game.scorekeeper_last %>
+                        <% } else { %>
+                            <%= game.scorekeeper_name %>
+                        <% } %>
+                    </td>
+                    <td>
+                        <!-- Display referee names -->
+                        <!-- Modify as necessary based on your logic -->
+                        <!-- Example: -->
+                        <% if (game.ref1_first && game.schedule_ref1 !== 1) { %>
+                            Referee 1: <%= game.ref1_first %> <%= game.ref1_last %><br>
+                        <% } else if (game.ref1_name && game.schedule_ref1 !== 1) { %>
+                            Referee 1: <%= game.ref1_name %><br>
+                        <% } %>
+                        <% if (game.ref2_first && game.schedule_ref2 !== 1) { %>
+                            Referee 2: <%= game.ref2_first %> <%= game.ref2_last %><br>
+                        <% } else if (game.ref2_name && game.schedule_ref2 !== 1) { %>
+                            Referee 2: <%= game.ref2_name %><br>
+                        <% } %>
+                        <% if (game.ref3_first && game.schedule_ref3 !== 1) { %>
+                            Referee 3: <%= game.ref3_first %> <%= game.ref3_last %><br>
+                        <% } else if (game.ref3_name && game.schedule_ref3 !== 1) { %>
+                            Referee 3: <%= game.ref3_name %><br>
+                        <% } %>
+                        <% if (game.ref4_first && game.schedule_ref4 !== 1) { %>
+                            Referee 4: <%= game.ref4_first %> <%= game.ref4_last %><br>
+                        <% } else if (game.ref4_name && game.schedule_ref4 !== 1) { %>
+                            Referee 4: <%= game.ref4_name %><br>
+                        <% } %>
+                    </td>
+                    <td class="text-center">
+                        <% if (game.schedule_postponed === 1) { %>
+                            <a href="/gamestats/<%= game.schedule_makeupgm %>">Postponed</a>
+                        <% } else { %>
+                            <a href="/gamestats/<%= game.schedule_id %>">Enter Game Stats</a>
+                        <% } %>
+                    </td>
+                </tr>
+    <% if (game.schedule_week !== currentWeek) { %>
+            </tbody>
+        </table>
+        <!-- End the section for each unique week -->
+    <% } %>
+<% }); %>
+</div>
+
+    <!-- Include any additional JavaScript scripts here -->
+    <script nonce="<%= nonce %>">
+        document.getElementById("seasonForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            var seasonId = document.getElementById("season").value;
+            window.location.href = "/schedules/" + seasonId;
+        });
+
+    </script>
+</body>
+</html>

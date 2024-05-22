@@ -1,0 +1,83 @@
+<h2>Goal Summary</h2>
+<!-- Display total goals per team per period -->
+<table style="width: 100%;" class="responsive">
+    <thead>
+        <tr>
+            <th>Team</th>
+            <th class="text-center">Period 1</th>
+            <th class="text-center">Period 2</th>
+            <th class="text-center">Period 3</th>
+            <% if (gameScoreSummary.hasOvertimeGoals || gameScoreSummary.hasShootoutGoals) { %>
+                <th class="text-center">Overtime</th>
+            <% } %>
+            <% if (gameScoreSummary.hasShootoutGoals) { %>
+                <th class="text-center">Shootout</th>
+            <% } %>
+            <th class="text-center">Total</th>
+        </tr>
+    </thead>
+    <tbody id="total-scores">
+        <tr>
+            <td>
+                <%= schedule.home_team_name %>
+            </td>
+            <% for (let i = 1; i <= 3; i++) { %>
+                <% const periodGoals = gameScoreSummary.goalsPerTeamResult.filter(result =>result.gamescore_team === schedule.home_team_id && result.gamescore_period === i); %>
+                <td class="text-center">
+                    <%= periodGoals.length > 0 ? periodGoals[0].total_team_goals : 0 %>
+                </td>
+            <% } %>
+            <% if (gameScoreSummary.hasOvertimeGoals || gameScoreSummary.hasShootoutGoals) { %>
+             <!-- Overtime column -->
+                <td class="text-center">
+                    <% const overtimeGoalsHome = gameScoreSummary.goalsPerTeamResult.filter(result =>result.gamescore_team === schedule.home_team_id &&result.gamescore_period === 4); %>
+                    <%= overtimeGoalsHome.length > 0 ?overtimeGoalsHome[0].total_team_goals : 0 %>
+                </td>
+            <% } %>
+            <% if (gameScoreSummary.hasShootoutGoals) { %>
+             <!-- Shootout column -->
+                <td class="text-center">
+                    <% const shootoutGoalsHome = gameScoreSummary.shootoutInfo &&gameScoreSummary.shootoutInfo.filter(info =>info.shootout_team === schedule.home_team_id &&info.shootout_goal === 1).length; %>
+                    <%= shootoutGoalsHome %>
+                </td>
+            <% } %><!-- Total column for Home team -->
+            <td class="text-center">
+                <% const totalHomeGoals = gameScoreSummary.goalsPerTeamResult.filter(result =>result.gamescore_team ===schedule.home_team_id).reduce((total, result) => total +result.total_team_goals, 0); %>
+                <% const shootoutGoalsHomeTotal = gameScoreSummary.shootoutInfo &&gameScoreSummary.shootoutInfo.filter(info =>info.shootout_team === schedule.home_team_id &&info.shootout_goal === 1).length; %>
+                <% const shootoutGoalsVisitorTotal = gameScoreSummary.shootoutInfo &&gameScoreSummary.shootoutInfo.filter(info =>info.shootout_team === schedule.visitor_team_id &&info.shootout_goal === 1).length; %>
+                <% const homeTeamTotal = totalHomeGoals +(shootoutGoalsHomeTotal >shootoutGoalsVisitorTotal ? 1 : 0); %>
+                <%= homeTeamTotal %>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <%= schedule.visitor_team_name %>
+            </td>
+            <% for (let i = 1; i <= 3; i++) { %>
+                <% const periodGoals = gameScoreSummary.goalsPerTeamResult.filter(result =>result.gamescore_team === schedule.visitor_team_id && result.gamescore_period ===i); %>
+                <td class="text-center">
+                    <%= periodGoals.length > 0 ? periodGoals[0].total_team_goals : 0 %>
+                </td>
+            <% } %>
+            <% if (gameScoreSummary.hasOvertimeGoals || gameScoreSummary.hasShootoutGoals) { %>
+             <!-- Overtime column -->
+                <td class="text-center">
+                    <% const overtimeGoalsVisitor = gameScoreSummary.goalsPerTeamResult.filter(result =>result.gamescore_team === schedule.visitor_team_id &&result.gamescore_period === 4); %>
+                    <%= overtimeGoalsVisitor.length > 0 ?overtimeGoalsVisitor[0].total_team_goals : 0 %>
+                </td>
+            <% } %>
+            <% if (gameScoreSummary.hasShootoutGoals) { %>
+             <!-- Shootout column -->
+                <td class="text-center">
+                    <% const shootoutGoalsVisitor = gameScoreSummary.shootoutInfo &&gameScoreSummary.shootoutInfo.filter(info =>info.shootout_team === schedule.visitor_team_id &&info.shootout_goal === 1).length; %>
+                    <%= shootoutGoalsVisitor %>
+                </td>
+            <% } %><!-- Total column for Visitor team -->
+            <td class="text-center">
+                <% const totalVisitorGoals = gameScoreSummary.goalsPerTeamResult.filter(result =>result.gamescore_team ===schedule.visitor_team_id).reduce((total, result) =>total + result.total_team_goals, 0); %>
+                <% const visitorTeamTotal = totalVisitorGoals +(shootoutGoalsVisitorTotal >shootoutGoalsVisitorTotal ? 1 : 0); %>
+                <%= visitorTeamTotal %>
+            </td>
+        </tr>
+    </tbody>
+</table>

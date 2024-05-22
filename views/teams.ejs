@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<%- include('./headtag'); %>
+	</head>
+	<body>
+		<%- include('./navbar'); %>
+
+		<div class="container">
+			<h1><%= seasonName %></h1>
+
+			<form action="/teams" method="GET">
+				<label for="season">Select Season:</label>
+				<select name="season" id="season">
+					<% seasons.forEach(season => { %>
+						<option value="<%= season.season_id %>" <% if (season.season_id == selectedSeasonId) { %> selected <% } %>><%= season.season_name %></option>
+						<% }); %>
+				</select>
+				<button type="submit">Change Season</button>
+			</form>
+			<br><br>
+			<a href="/teams/add/?seasonID=<%= selectedSeasonId %>">Add New Team</a>
+			<br><br>
+			<% if (teams.length > 0) { %>
+			<ul>
+				<% teams.forEach(team => { %>
+				<li><a href="/teams/edit/<%= team.team_id %>"><%= team.team_name %></a></li>
+				<!-- Render other team details here if needed -->
+				<% }); %>
+			</ul>
+			<% } else { %>
+			<p>No teams found for the selected season.</p>
+			<% } %>
+		</div>
+	</body>
+</html>

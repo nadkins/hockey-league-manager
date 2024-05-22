@@ -1,0 +1,117 @@
+<form id="homeTeamForm" method="POST" action="/gamestats/<%= schedule.schedule_id %>/attendance">
+<input type="hidden" name="attendance_team" value="<%= schedule.home_team_id %>" />
+<fieldset>
+    <legend>Home Team Attendance: <%= schedule.home_team_name %></legend>
+<div class="attendance-home-team">
+    <!-- Render home team goalie -->
+    <h3>Goalie</h3>
+    <input type="checkbox" name="attendance_goalie[]" value="<%= schedule.visitor_team_goalie.player_id %>" <% if
+(schedule.home_team_goalie.attending==true) { %>checked<% } %> />
+    <%= schedule.home_team_goalie.player_first %> <%= schedule.home_team_goalie.player_last %>
+    <br /><br />
+    <h3>Goalie Subs</h3>
+    <div id="home_sub_goalies_container">
+        <% schedule.homeSubs.attendanceSubG.forEach(player=> { %>
+        <input type="hidden" name="attendance_subG[]" value="<%= player.player_id %>" />
+        <%= player.player_first %> <%= player.player_last %><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> <br />
+        <% }); %>
+    </div>
+    <br />
+    <select name="home_goalie_sub" id="home_goalie_sub">
+        <option value="">Add Goalie Sub</option>
+        <% all_players.forEach(player=> { %> <% if (player.player_id !==1 && player.player_positions.includes(3)) { %>
+        <!-- Exclude player with player_id = 1 -->
+        <option value="<%= player.player_id %>">
+        <%= player.player_first %> <%= player.player_last %>
+        </option>
+        <% } %>
+        <% }); %>
+    </select>
+    <button type="button" id="add_home_sub_goalie">Add Sub Goalie to Home</button>
+    <h3>Players</h3>
+    <% schedule.home_players.forEach(player=> { %> 
+        <% if (player.player_id !==1) { %>
+        <!-- Exclude player with player_id = 1 -->
+        <input type="checkbox" name="attendance_players[]" value="<%= player.player_id %>" <% if (player.attending==true) { %>checked<% } %> /> 
+            <%= player.player_first %> <%= player.player_last %> <br />
+        <% } %>
+    <% }); %> <br /><br />
+    <h3>Player Subs</h3>
+    <div id="home_players_container"></div>
+    <br /><br />
+    <select name="home_players_subs" id="home_players_subs">
+        <option value="">Add Player Sub</option>
+        <% all_players.forEach(player=> { %> 
+        <% if (player.player_id !==1) { %>
+        <!-- Exclude player with player_id = 1 -->
+        <option value="<%= player.player_id %>">
+            <%= player.player_first %> <%= player.player_last %>
+        </option>
+        <% } %>
+        <% }); %>
+    </select>
+    <button type="button" id="add_home_player">Add Player Sub to Home</button>
+    <br /><br />
+    <button id="homeSubmitButton" type="button">Submit Home Attendance</button>
+    </div>
+</fieldset>
+</form>
+<form id="visitorTeamForm" method="POST" action="/gamestats/<%= schedule.schedule_id %>/attendance">
+    <input type="hidden" name="attendance_team" value="<%= schedule.visitor_team_id %>" />
+    <fieldset>
+        <legend>Visitor Team Attendance: <%= schedule.visitor_team_name %></legend>
+    <div class="attendance-visitor-team">
+    
+    <!-- Render visitor team goalie -->
+    <h3>Goalie</h3>
+    <input type="checkbox" name="attendance_goalie[]" value="<%= schedule.visitor_team_goalie.player_id %>" <% if
+(schedule.visitor_team_goalie.attending==true) { %>checked<% } %> />
+    <%= schedule.visitor_team_goalie.player_first %> <%= schedule.visitor_team_goalie.player_last %>
+    <br /><br />
+    <h3>Goalie Subs</h3>
+    <div id="visitor_sub_goalies_container">
+        <% schedule.visitorSubs.attendanceSubG.forEach(player=> { %>
+        <input type="hidden" name="attendance_subG[]" value="<%= player.player_id %>" />
+        <%= player.player_first %> <%= player.player_last %><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i> <br />
+        <% }); %>
+    </div>
+    <br />
+    <select name="visitor_goalie_sub" id="visitor_goalie_sub">
+        <option value="">Add Goalie Sub</option>
+        <% all_players.forEach(player=> { %> <% if (player.player_id !==1 && player.player_positions.includes(3)) { %>
+        <!-- Exclude player with player_id = 1 -->
+        <option value="<%= player.player_id %>">
+        <%= player.player_first %> <%= player.player_last %>
+        </option>
+        <% } %>
+        <% }); %>
+    </select>
+    <button type="button" id="add_visitor_sub_goalie">Add Sub Goalie to Visitor</button>
+    <br /><br />
+    <% schedule.visitor_players.forEach(player=> { %> 
+        <% if (player.player_id !==1) { %>
+        <!-- Exclude player with player_id = 1 -->
+        <input type="checkbox" name="attendance_players[]" value="<%= player.player_id %>" <% if (player.attending==true) { %>checked<% } %> /> 
+        <%= player.player_first %> <%= player.player_last %> <br />
+        <% } %>
+    <% }); %> <br /><br />
+    <h3>Player Subs</h3>
+    <div id="visitor_players_container"></div>
+    <br /><br />
+    <select name="visitor_players_subs" id="visitor_players_subs">
+        <option value="">Add Player Sub</option>
+        <% all_players.forEach(player=> { %> 
+        <% if (player.player_id !==1) { %>
+        <!-- Exclude player with player_id = 1 -->
+        <option value="<%= player.player_id %>">
+            <%= player.player_first %> <%= player.player_last %>
+        </option>
+        <% } %>
+        <% }); %>
+    </select>
+    <button type="button" id="add_visitor_player">Add Player Sub to Visitor</button>
+    <br /><br />
+    <button id="visitorSubmitButton" type="button">Submit Visitor Attendance</button>
+    </div>
+</fieldset>
+</form>

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<%- include('./headtag'); %>
+	</head>
+<body>
+  <%- include('./navbar'); %>
+  <div class="container">
+  <h1><%= title %></h1>
+  <!-- Render each team and its players -->
+  <% if (schedule && schedule.home_team_name && schedule.visitor_team_name) { %>
+  <div id="gamestats-attendance" class="grid attendance-team">
+    <%- include('partials/gamestats-attendance', { schedule, all_players }) %>
+  </div>
+  <div id="gamestats-refkeeper">
+    <%- include('partials/gamestats-refkeeper', { schedule, all_players }) %>
+  </div>
+  <div id="gamestats-gamesummary" class="game-summary">
+    <% if (gameScoreSummary) { %>
+      <%- include('partials/gamestats-goal-list', { schedule, gameScoreSummary }) %>
+      <%- include('partials/gamestats-goal-add', { schedule, gameScoreSummary }) %>
+    <% } %>
+  </div>
+  <div id="gamestats-shootout">
+    <% if (gameScoreSummary.shootoutInfo.length > 0) { %>
+      <%- include('partials/gamestats-shootout-list', { gameScoreSummary }) %>
+    <% } %>
+    <%- include('partials/gamestats-shootout-add', { schedule }) %>
+  </div>
+  <div id="gamestats-penalty">
+    <% if (penaltySummary && penaltySummary.length > 0) { %>
+	    <%- include('partials/gamestats-penalty-list', { penaltySummary: penaltySummary}) %>
+    <% } %>
+    <%- include('partials/gamestats-penalty-add', { schedule}) %>
+  </div>
+  <div id="gamestats-shots">
+    <% if (shotSummary && shotSummary.length > 0) { %>
+	    <%- include('partials/gamestats-shots-list', { schedule, shotSummary: shotSummary}) %>
+    <% } %>
+    <%- include('partials/gamestats-shots-add', { schedule}) %>
+  </div>
+  <div id="gamestats-stars">
+    <% if (starsSummary && starsSummary.length > 0) { %>
+	    <%- include('partials/gamestats-threestars-list', { schedule, starsSummary: starsSummary}) %>
+    <% } %>
+    <%- include('partials/gamestats-threestars-add', { schedule}) %>
+  </div>
+  <% } else { %>
+    <p>No game stats available.</p>
+  <% } %>
+</div>
+<script nonce="<%= nonce %>">
+  document.addEventListener('DOMContentLoaded', function() {    
+    document.querySelectorAll('.choose-team').forEach(function(element) {
+      element.addEventListener('change', function() {
+
+      console.log(this);
+      const selectedTeamId = this.value;
+      const playersSelect = this.dataset.playerdiv;
+      let players;
+
+
+      // Decode the encoded JSON data and parse it
+      function decodeAndParse(encodedData) {
+        return JSON.parse(decodeURIComponent(encodedData.replace(/\+/g, ' ')));
+      }
+
+      // Determine which team's players to use based on the selected team
+      if (selectedTeamId === '<%= schedule.home_team_id %>') {
+        players = decodeAndParse('<%= encodeURIComponent(JSON.stringify(schedule.home_players)) %>');
+      } else if (selectedTeamId === '<%= schedule.visitor_team_id %>') {
+        players = decodeAndParse('<%= encodeURIComponent(JSON.stringify(schedule.visitor_players)) %>');
+      }
+
+      // Update player select elements
+      updatePlayerSelect(selectedTeamId, players, playersSelect);
+    });
+
+    // Function to disable serving player penalty
+    const penaltyPenaltySelect = document.querySelector('select[name="penalty_penalty"]');
+    const penaltyServingSelect = document.querySelector('select[name="penalty_serving"]');
+    const penaltyPlayerSelect = document.querySelector('select[name="penalty_player"]');
+
+    penaltyPenaltySelect.addEventListener('change', function() {
+        if (this.value === "Too Many Players") {
+            penaltyServingSelect.disabled = false;
+            penaltyPlayerSelect.disabled = true;
+            penaltyPlayerSelect.selectedIndex = 0; // Set the option to the first one
+        } else {
+            penaltyServingSelect.disabled = true;
+            penaltyPlayerSelect.disabled = false;
+            penaltyServingSelect.selectedIndex = 0; // Set the option to the first one
+        }
+    });
+
+  });
+
+
+    // Function to handle deletion for goals, penalties, and shootouts
+    function deleteEntry(type, id) {
+        const gameID = <%= schedule.schedule_id %>;
+        // Confirm with the user before deleting
+        if (confirm(`Are you sure you want to delete this ${type}?`)) {
+            // Redirect to the delete route with the entry ID
+            // Make an HTTP POST request to the server
+            fetch(`/gamestats/${id}/${type}/${gameID}/delete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                // Redirect to the appropriate page based on the type
+                const redirectURL = type === 'goalscore' ? `/gamestats/${gameID}?goalUpdated=true` :
+                                    type === 'penalty' ? `/gamestats/${gameID}?penaltyUpdated=true` :
+                                    type === 'shootout' ? `/gamestats/${gameID}?shootoutUpdated=true` :
+                                    `/gamestats/${gameID}`;
+                window.location.href = redirectURL;
+            })
+            .catch(error => {
+                console.error('Error deleting entry:', error);
+                // Handle error if needed
+            });
+        }
+    }
+
+    // Add event listeners to the delete buttons
+    const deleteButtons = document.querySelectorAll('.delete-entry');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const entryType = this.dataset.entrytype;
+            const entryID = this.dataset.entryid;
+            deleteEntry(entryType, entryID);
+        });
+    });    
+
+    const editButtons = document.querySelectorAll('.edit-icon');
+
+    editButtons.forEach(button => {
+      button.addEventListener('click', editRow);
+    });
+
+    function saveRow() {
+      console.log('Save button clicked');
+      const button = this;
+      const row = button.closest('tr');
+      const cells = row.querySelectorAll('.editable');
+
+      const data = {}; // Object to store the edited data
+
+      cells.forEach(cell => {
+        const field = cell.dataset.field;
+        console.log(`Processing field: ${field}`);
+
+        // Check if the cell contains any checkboxes
+        const checkboxes = cell.querySelectorAll('input[type="checkbox"]');
+        if (checkboxes.length > 0) {
+          // If checkboxes are found, create an array to store values of selected checkboxes
+          const selectedCheckboxes = [];
+
+          // Loop through each checkbox
+          checkboxes.forEach(checkbox => {
+            // If the checkbox is checked, add its value to the array
+            if (checkbox.checked) {
+              selectedCheckboxes.push(checkbox.value);
+            }
+          });
+
+          // If no checkboxes are selected, store null, otherwise store the array of selected values
+          if (!data[field]) {
+            data[field] = selectedCheckboxes.length > 0 ? selectedCheckboxes : null;
+          } else {
+            // Append the values to the existing array
+            data[field] = data[field].concat(selectedCheckboxes);
+          }
+        } else {
+
+          // Array to store values of inputs or selects in the cell
+          const inputValues = [];
+
+          // Find all input and select elements inside the cell
+          const inputElements = cell.querySelectorAll('input, select');
+
+          // Loop through each input or select element and collect its value
+          inputElements.forEach(input => {
+            inputValues.push(input.value);
+          });
+
+          // If there are no input or select elements, skip to the next cell
+          if (inputValues.length === 0) {
+            console.error('No input or select elements found in the cell:', cell);
+            return;
+          }
+
+          // If data[field] doesn't exist, create a new array, otherwise append values to the existing array
+          if (!data[field]) {
+            data[field] = inputValues;
+          } else {
+            // Append the values to the existing array
+            data[field] = data[field].concat(inputValues);
+          }
+        }
+      });
+
+      // Extract the gamescore_id from the data object
+      const gamescoreID = data['gamescore_id'];
+
+      const scheduleID = <%= schedule.schedule_id %>;
+      // Make an HTTP POST request to the server
+      fetch(`/gamestats/${scheduleID}/goalscore/${gamescoreID}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data) // Convert data object to JSON string
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          window.location.href = `/gamestats/${scheduleID}?goalUpdated=true`;
+
+        })
+        .catch(error => {
+          console.error('Error editing row:', error);
+          // Handle error if needed
+        });
+    }
+
+    function editRow() {
+      console.log('Edit button clicked');
+      const button = this;
+      const row = button.closest('tr');
+      const cells = row.querySelectorAll('.editable');
+      button.classList.remove('edit-icon'); // Remove the class 'edit-icon'
+      button.classList.add('save-icon'); // Add the class 'save-icon'
+
+
+      cells.forEach(cell => {
+        const value = cell.textContent.trim();
+        const field = cell.dataset.field;
+
+        if (field === 'gamescore_team' || field.includes('player') || field.includes('assist') || field.includes('gamescore_period')) {
+          fetchAndPopulateSelect(cell, field, value);
+        } else if (field === 'gamescore_time') {
+          // Set the selected option based on the data-teamID attribute of the cell
+          const selectedTime = cell.dataset.period;
+          const [minutes, seconds] = selectedTime.split(':');
+
+          const inputMin = document.createElement('input');
+          inputMin.setAttribute('type', 'number');
+          inputMin.setAttribute('value', minutes);
+          inputMin.setAttribute('name', 'gamescore_mins');
+
+          cell.textContent = '';
+          cell.appendChild(inputMin);
+
+          const inputSec = document.createElement('input');
+          inputSec.setAttribute('type', 'number');
+          inputSec.setAttribute('value', seconds);
+          inputSec.setAttribute('name', 'gamescore_secs');
+
+          cell.appendChild(inputSec);
+        } else if (field === 'gamescore_notes') {
+          // Set the selected option based on the data-teamID attribute of the cell
+          const selectedNotes = cell.dataset.id;
+
+          const inputNotes = document.createElement('input');
+          inputNotes.setAttribute('type', 'text');
+          inputNotes.setAttribute('value', selectedNotes);
+          inputNotes.setAttribute('name', 'gamescore_notes');
+
+          cell.textContent = '';
+          cell.appendChild(inputNotes);
+
+        } else if (field === 'gamescore_type') {
+          cell.textContent = '';
+          const goalTypeDiv = document.querySelector('#goalType');
+
+          // Get the comma-separated list of values from the data-goaltype attribute
+          const goalTypeValues = cell.dataset.goaltype.split(',');
+
+          // Iterate over each checkbox and select it if its value is in the goaltypeValues array
+          goalTypeDiv.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            // Clone the checkbox and its corresponding label and append them to the cell
+            const clonedCheckbox = checkbox.cloneNode(true);
+
+            if (goalTypeValues.includes(checkbox.value)) {
+              clonedCheckbox.checked = true; // Check the checkbox
+            }
+
+            cell.appendChild(clonedCheckbox);
+
+            const labelForCheckbox = document.querySelector(`label[for="${checkbox.id}"]`);
+            const clonedLabel = labelForCheckbox.cloneNode(true);
+
+            cell.appendChild(clonedLabel);
+
+          });
+
+        } else {
+          const input = document.createElement('input');
+          input.setAttribute('type', 'hidden');
+          input.setAttribute('value', cell.dataset.id);
+          input.setAttribute('name', field);
+
+          cell.textContent = '';
+          cell.appendChild(input);
+        }
+      });
+
+      button.textContent = 'Save';
+      button.removeEventListener('click', editRow);
+      button.addEventListener('click', saveRow);
+    }
+
+    function fetchAndPopulateSelect(cell, field, value) {
+
+      if (field === 'gamescore_team') {
+        const select = document.querySelector('#goalScoreTeamForm select[name="gamescore_team"]');
+
+        // Clone the select element to avoid modifying the original one
+        const clonedSelect = select.cloneNode(true);
+        clonedSelect.setAttribute('name', field);
+
+        // Clear existing options
+        clonedSelect.innerHTML = '';
+
+        // Iterate over the options in the original select element and add them to the cloned select
+        select.querySelectorAll('option').forEach(option => {
+          const clonedOption = option.cloneNode(true);
+          clonedSelect.appendChild(clonedOption);
+        });
+
+        // Set the selected option based on the provided value
+        clonedSelect.value = value;
+
+        // Set the selected option based on the data-teamID attribute of the cell
+        const selectedTeamID = cell.dataset.teamid;
+        clonedSelect.querySelectorAll('option').forEach(option => {
+          if (option.value === selectedTeamID) {
+            option.selected = true;
+          }
+        });
+
+        clonedSelect.addEventListener('change', function() {
+          const selectedTeamId = this.value;
+          let players;
+
+          // Decode the encoded JSON data and parse it
+          function decodeAndParse(encodedData) {
+            return JSON.parse(decodeURIComponent(encodedData.replace(/\+/g, ' ')));
+          }
+
+          // Determine which team's players to use based on the selected team
+          if (selectedTeamId === '<%= schedule.home_team_id %>') {
+            players = decodeAndParse('<%= encodeURIComponent(JSON.stringify(schedule.home_players)) %>');
+          } else if (selectedTeamId === '<%= schedule.visitor_team_id %>') {
+            players = decodeAndParse('<%= encodeURIComponent(JSON.stringify(schedule.visitor_players)) %>');
+          }
+
+          // Update player select elements
+          updatePlayerSelect(selectedTeamId, players, 'gamescoreadd_player_load');
+        });
+
+
+        // Replace the cell's content with the cloned select element
+        cell.textContent = '';
+        cell.appendChild(clonedSelect);
+      } else if (field === 'gamescore_player' || field === 'gamescore_assist1' || field === 'gamescore_assist2') {
+        const playerSelect = document.querySelector('#refForm #schedule_scorekeeper');
+        // Clone the select element to avoid modifying the original one
+        const clonedSelect = playerSelect.cloneNode(true);
+        clonedSelect.removeAttribute('id'); // Remove the id attribute
+        clonedSelect.classList.add('gamescoreadd_player_load'); // Add the class 'choose-edit-team'
+        clonedSelect.setAttribute('name', field);
+
+        // Clear existing options
+        clonedSelect.innerHTML = '';
+
+        // Create and insert a new option element for "Unassisted" at the top
+        const unassistedOption = document.createElement('option');
+        unassistedOption.value = 'Unassisted';
+        unassistedOption.textContent = 'Unassisted';
+        clonedSelect.appendChild(unassistedOption);
+
+
+        // Iterate over the options in the original select element and add them to the cloned select
+        playerSelect.querySelectorAll('option').forEach(option => {
+          const clonedOption = option.cloneNode(true);
+          clonedSelect.appendChild(clonedOption);
+        });
+
+        // Set the selected option based on the provided value
+        clonedSelect.value = value;
+
+        // Set the selected option based on the data-teamID attribute of the cell
+        const selectedPlayerID = cell.dataset.playerid;
+        clonedSelect.querySelectorAll('option').forEach(option => {
+          if (option.value === selectedPlayerID) {
+            option.selected = true;
+          }
+        });
+
+        // Replace the cell's content with the cloned select element
+        cell.textContent = '';
+        cell.appendChild(clonedSelect);
+      } else if (field === 'gamescore_period') {
+        const playerSelect = document.querySelector('#goalScoreTeamForm select[name="gamescore_period"]');
+        // Clone the select element to avoid modifying the original one
+        const clonedSelect = playerSelect.cloneNode(true);
+        clonedSelect.setAttribute('name', field);
+
+        // Clear existing options
+        clonedSelect.innerHTML = '';
+
+        // Create and insert a new option element for "Unassisted" at the top
+        const unassistedOption = document.createElement('option');
+        unassistedOption.value = 'Unassisted';
+        unassistedOption.textContent = 'Unassisted';
+        clonedSelect.appendChild(unassistedOption);
+
+        // Iterate over the options in the original select element and add them to the cloned select
+        playerSelect.querySelectorAll('option').forEach(option => {
+          const clonedOption = option.cloneNode(true);
+          clonedSelect.appendChild(clonedOption);
+        });
+
+        // Set the selected option based on the provided value
+        clonedSelect.value = value;
+
+        // Set the selected option based on the data-teamID attribute of the cell
+        const selectedPeriod = cell.dataset.period;
+        clonedSelect.querySelectorAll('option').forEach(option => {
+          if (option.value === selectedPeriod) {
+            option.selected = true;
+          }
+        });
+
+        // Replace the cell's content with the cloned select element
+        cell.textContent = '';
+        cell.appendChild(clonedSelect);
+      } else {
+        console.error('Select element not found.');
+      }
+    }
+  });
+
+  // Function to submit a specific form to the specified route
+  function submitForm(formId, route) {
+    const form = document.getElementById(formId);
+    form.action = route; // Set the action attribute of the form
+    form.submit(); // Submit the form
+  }
+  <% if (gameScoreSummary.shootoutInfo.length > 0) { %>
+  // Add event listeners to buttons to trigger form submission
+  document.getElementById("addShootoutFormButton").addEventListener("click", function() {
+    const route = "/gamestats/shootout/<%= schedule.schedule_id %>"; // Replace with your actual route
+    submitForm("addShootoutForm", route);
+  });
+  <% } %>
+  // Add event listeners to buttons to trigger form submission
+  document.getElementById("refSubmitButton").addEventListener("click", function() {
+    const route = "/gamestats/<%= schedule.schedule_id %>/referee"; // Replace with your actual route
+    submitForm("refForm", route);
+  });
+  // Add event listeners to buttons to trigger form submission
+  document.getElementById("homeSubmitButton").addEventListener("click", function() {
+    const route = "/gamestats/<%= schedule.schedule_id %>/attendance"; // Replace with your actual route
+    submitForm("homeTeamForm", route);
+  });
+  document.getElementById("visitorSubmitButton").addEventListener("click", function() {
+    const route = "/gamestats/<%= schedule.schedule_id %>/attendance"; // Replace with your actual route
+    submitForm("visitorTeamForm", route);
+  });
+
+
+  // Function to handle adding attendance for substitutes and goalies
+  function addAttendance(containerId, selectId, inputName) {
+      const selectElement = document.getElementById(selectId);
+      const playerId = selectElement.value;
+      if (playerId !== "") {
+          const playerName = selectElement.options[selectElement.selectedIndex].text;
+          const container = document.getElementById(containerId);
+          if (!container.querySelector(`input[value="${playerId}"]`)) {
+              // Check if player already exists
+              container.innerHTML = ""; // Clear container
+              const input = document.createElement("input");
+              input.type = "hidden";
+              input.name = inputName;
+              input.value = playerId;
+              const span = document.createElement("span");
+              span.textContent = playerName;
+              const removeIcon = document.createElement("i");
+              removeIcon.classList.add("fa-solid", "fa-circle-xmark");
+              addRemoveIconEvent(removeIcon, input, span, container);
+              container.appendChild(span);
+              container.appendChild(removeIcon);
+              container.appendChild(input);
+              const br = document.createElement("br");
+              container.appendChild(br);
+          }
+      }
+  }
+
+  // Function to add remove icon event
+  function addRemoveIconEvent(removeIcon, input, span, container) {
+      removeIcon.addEventListener("click", function() {
+          container.removeChild(input);
+          container.removeChild(span);
+          container.removeChild(removeIcon);
+      });
+  }
+
+  // Add event listeners to add attendance buttons
+  document.getElementById("add_visitor_sub_goalie").addEventListener("click", function() {
+      addAttendance("visitor_sub_goalies_container", "visitor_goalie_sub", "attendance_subG[]");
+  });
+
+  document.getElementById("add_home_sub_goalie").addEventListener("click", function() {
+      addAttendance("home_sub_goalies_container", "home_goalie_sub", "attendance_subG[]");
+  });
+
+  document.getElementById("add_home_player").addEventListener("click", function() {
+      addAttendance("home_players_container", "home_players_subs", "attendance_subs[]");
+  });
+
+  document.getElementById("add_visitor_player").addEventListener("click", function() {
+      addAttendance("visitor_players_container", "visitor_players_subs", "attendance_subs[]");
+  });
+
+  // Add event listeners to remove icons for items rendered on page load
+  document.querySelectorAll(".fa-circle-xmark").forEach(function(icon) {
+      const input = icon.previousSibling;
+      const span = input.previousSibling;
+      const container = input.parentNode;
+      addRemoveIconEvent(icon, input, span, container);
+  });
+
+
+
+  // Function to update player select elements based on selected team
+  function updatePlayerSelect(teamId, players, classname) {
+    const playerSelects = document.querySelectorAll('.' + classname);
+
+    playerSelects.forEach(select => {
+      // Clear previous options
+      select.innerHTML = '<option value="">Select a Player</option>';
+
+      // Add options for players of the selected team
+      players.forEach(player => {
+        const option = document.createElement('option');
+        option.value = player.player_id;
+        option.textContent = player.player_first + ' ' + player.player_last;
+        select.appendChild(option);
+      });
+    });
+  }
+</script>
+</body>
+
+</html>

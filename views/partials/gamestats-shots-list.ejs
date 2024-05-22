@@ -1,0 +1,65 @@
+<table style="width: 100%;" class="responsive" id="shotsfor">
+    <thead>
+        <tr>
+            <th>Team</th>
+            <th>Period 1</th>
+            <th>Period 2</th>
+            <th>Period 3</th>
+            <% let showOvertime = false; %>
+            <% shotSummary.forEach(function(shot) { %>
+                <% if (shot.shots_period === 'OT') { %>
+                    <% showOvertime = true; %>
+                <% } %>
+            <% }); %>
+            <% if (showOvertime) { %>
+                <th>Overtime</th>
+            <% } %>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% 
+        let teams = {};
+        shotSummary.forEach(function(shot) {
+            let teamName = shot.shots_team.team_name;
+            if (!teams[teamName]) {
+                teams[teamName] = {
+                    period1: 0,
+                    period2: 0,
+                    period3: 0,
+                    overtime: 0
+                };
+            }
+            switch (shot.shots_period) {
+                case '1':
+                    teams[teamName].period1 += shot.shots_total;
+                    break;
+                case '2':
+                    teams[teamName].period2 += shot.shots_total;
+                    break;
+                case '3':
+                    teams[teamName].period3 += shot.shots_total;
+                    break;
+                default:
+                    teams[teamName].overtime += shot.shots_total;
+                    break;
+            }
+        });
+
+        Object.keys(teams).forEach(function(teamName) {
+            %>
+            <tr>
+                <td><%= teamName %></td>
+                <td><%= teams[teamName].period1 || 0 %></td>
+                <td><%= teams[teamName].period2 || 0 %></td>
+                <td><%= teams[teamName].period3 || 0 %></td>
+                <% if (showOvertime) { %>
+                    <td><%= teams[teamName].overtime || '' %></td>
+                <% } %>
+                <td><%= (teams[teamName].period1 || 0) + (teams[teamName].period2 || 0) + (teams[teamName].period3 || 0) + (teams[teamName].overtime || 0) %></td>
+            </tr>
+            <% 
+        }); 
+        %>
+    </tbody>
+</table>

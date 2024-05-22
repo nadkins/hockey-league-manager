@@ -1,0 +1,38 @@
+<form id="addShotForm" method="POST" action="/gamestats/shots/<%= schedule.schedule_id %>">
+    <input type="hidden" name="shots_game" value="<%= schedule.schedule_id %>">
+      <fieldset>
+        <legend>Enter Shots:</legend>
+        <div>
+            <label>Choose Team  
+                <select name="shots_team" class="required">
+                    <option value="">Select Team</option>
+                    <option value="<%= schedule.home_team_id %>">
+                        <%= schedule.home_team_name %>
+                    </option>
+                    <option value="<%= schedule.visitor_team_id %>">
+                        <%= schedule.visitor_team_name %>
+                    </option>
+                </select>
+            </label>
+        </div>
+        <div>
+            <label>Period
+                <select name="shots_period" class="required">
+                    <option value="">Choose Period</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="OT">OT</option>
+                </select>
+            </label>
+        </div>
+        <div>
+            <label>Total Shots
+                <input type="number" placeholder="Enter Total Shots" name="shots_total" class="required">
+            </label>
+        </div>
+        <div>
+            <input type="submit" class="button success radius right" value="Submit">
+        </div>
+    </fieldset>
+</form>

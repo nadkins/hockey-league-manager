@@ -1,0 +1,37 @@
+<form id="addShootoutForm" method="POST" action="/gamestats/shootout/<%= schedule.schedule_id %>">
+    <input type="hidden" name="shootout_game" value="<%= schedule.schedule_id %>">
+    <fieldset>
+      <legend>Enter Shootout:</legend>
+        <label for="shootoutTeam">Team:</label>
+        <select id="shootoutTeam" name="shootout_team" class="choose-team" data-playerdiv="load-shootout-player">
+            <option value="">Select Team</option>
+            <option value="<%= schedule.home_team_id %>">
+                <%= schedule.home_team_name %>
+            </option>
+            <option value="<%= schedule.visitor_team_id %>">
+                <%= schedule.visitor_team_name %>
+            </option>
+        </select>
+        <br>
+
+        <label for="shootoutPlayer">Player:</label>
+        <select id="shootoutPlayer" name="shootout_player" class="load-shootout-player">
+            <option value="">Select Team</option>
+        </select>
+        <br>
+
+        <label for="shootoutRound">Round:</label>
+        <input type="number" id="shootoutRound" name="shootout_round" min="1">
+        <br>
+
+        <label for="shootoutGoal">Goal:</label>
+        <select id="shootoutGoal" name="shootout_goal">
+            <option value="2">Did Not Shoot</option>
+            <option value="1">Goal</option>
+            <option value="0">No Goal</option>
+        </select>
+        <br>
+
+        <button id="addShootoutFormButton" type="submit">Add Shootout Entry</button>
+    </fieldset>
+</form>

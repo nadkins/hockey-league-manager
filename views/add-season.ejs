@@ -1,0 +1,65 @@
+<!-- add-season.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+		<head>
+		<%- include('./headtag'); %>
+	</head>
+	<body>
+		<%- include('./navbar'); %>
+
+		<h1><%= title %></h1>
+
+		<form action="/seasons/add" method="POST" enctype="multipart/form-data">
+			<label for="season_name">Season Name:</label>
+			<input type="text" id="season_name" name="season_name" required />
+			<br /><br />
+
+			<label for="season_division_1">Division 1:</label>
+			<input type="text" id="season_division_1" name="season_division_1" value="Division 1" />
+			<br /><br />
+
+			<label for="season_division_2">Division 2:</label>
+			<input type="text" id="season_division_2" name="season_division_2" value="Division 2" />
+			<br /><br />
+
+			<label for="season_division_3">Division 3:</label>
+			<input type="text" id="season_division_3" name="season_division_3" value="Division 3" />
+			<br /><br />
+
+			<label for="season_division_4">Division 4:</label>
+			<input type="text" id="season_division_4" name="season_division_4" value="Division 4" />
+			<br /><br />
+
+			<label for="season_active">Active:</label>
+			<input type="checkbox" id="season_active" name="season_active" value="1" />
+			<br /><br />
+
+			<!-- Add input field for uploading image -->
+			<label for="season_logo">Season Logo:</label>
+			<input type="file" id="season_logo" name="season_logo" accept="image/*" />
+			<br /><br />
+
+			<!-- Hidden input field for storing Unix timestamp -->
+			<input type="hidden" id="season_start" name="season_start" value="" />
+
+			<button type="submit">Add Season</button>
+		</form>
+		<script>
+			// Function to format Unix timestamp to YYYY-MM-DD HH:MM:SS format
+			function formatDate(timestamp) {
+				const date = new Date(timestamp * 1000);
+				const year = date.getFullYear();
+				let month = (date.getMonth() + 1).toString().padStart(2, "0");
+				let day = date.getDate().toString().padStart(2, "0");
+				let hours = date.getHours().toString().padStart(2, "0");
+				let minutes = date.getMinutes().toString().padStart(2, "0");
+				let seconds = date.getSeconds().toString().padStart(2, "0");
+				return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+			}
+
+			// Set the value of the hidden input field to the formatted current Unix timestamp
+			document.getElementById("season_start").value = formatDate(Math.floor(new Date() / 1000));
+		</script>
+	</body>
+</html>

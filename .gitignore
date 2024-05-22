@@ -1,0 +1,7 @@
+.vscode
+node_modules/
+.DS_Store
+notes.node_modules
+sdfhl_site.sql
+sdfhl.zip
+users.sql

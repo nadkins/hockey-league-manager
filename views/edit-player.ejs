@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./headtag'); %>
+</head>
+<body>
+    <%- include('./navbar'); %>
+    <div class="container players-edit">
+        <h1>Edit Player - <%= player.player_first %> <%= player.player_last %></h1>
+        <form action="/players/edit/<%= player.player_id %>" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="player_id" value="<%= player.player_id %>">
+            
+            <div>
+                <label for="player_first">First Name:</label>
+                <input type="text" id="player_first" name="player_first" value="<%= player.player_first %>" required />
+            </div>
+
+            <div>
+                <label for="player_last">Last Name:</label>
+                <input type="text" id="player_last" name="player_last" value="<%= player.player_last %>" required />
+            </div>
+
+            <div>
+                <label for="player_dob">Date of Birth:</label>
+                <input type="date" id="player_dob" name="player_dob" value="<%= player.player_dob %>" required />
+            </div>
+
+            <div>
+                <label for="player_phone">Phone:</label>
+                <input type="text" id="player_phone" name="player_phone" value="<%= player.player_phone %>" />
+            </div>
+
+            <div>
+                <label for="player_email">Email:</label>
+                <input type="email" id="player_email" name="player_email" value="<%= player.player_email %>" />
+            </div>
+
+            <div>
+                <label for="player_gender">Gender:</label>
+                <select id="player_gender" name="player_gender">
+                    <option value="">Select</option>
+                    <option value="M" <% if(player.player_gender === 'M') { %> selected <% } %>>Male</option>
+                    <option value="F" <% if(player.player_gender === 'F') { %> selected <% } %>>Female</option>
+                </select>
+            </div>
+
+            <div class="players-picture">
+                <label for="player_picture">Picture:</label>
+                <input type="file" id="player_picture" name="player_picture" accept="image/*" />
+                <% if (player.player_picture) { %>
+                    <img src="/uploads/<%= player.player_picture %>" alt="Player Picture" />
+                <% } else { %>
+                    <p>No picture available</p>
+                <% } %>
+            </div>
+
+            <!-- Add more fields here -->
+            
+            <button type="submit">Update Player</button>
+        </form>
+    </div>
+</body>
+</html>

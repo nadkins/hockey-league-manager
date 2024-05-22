@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+		<head>
+		<%- include('./headtag'); %>
+	</head>
+	<body>
+		<%- include('./navbar'); %>
+
+		<h1>Edit Season</h1>
+		<form action="/seasons/edit/<%= season.season_id %>" method="POST">
+			<label for="season_name">Season Name:</label>
+			<input type="text" id="season_name" name="season_name" value="<%= season.season_name %>" required /><br /><br />
+
+			<label for="season_division_1">Division 1:</label>
+			<input type="text" id="season_division_1" name="season_division_1" value="<%= season.season_division_1 %>" /><br /><br />
+
+			<label for="season_division_2">Division 2:</label>
+			<input type="text" id="season_division_2" name="season_division_2" value="<%= season.season_division_2 %>" /><br /><br />
+
+			<label for="season_division_3">Division 3:</label>
+			<input type="text" id="season_division_3" name="season_division_3" value="<%= season.season_division_3 %>" /><br /><br />
+
+			<label for="season_division_4">Division 4:</label>
+			<input type="text" id="season_division_4" name="season_division_4" value="<%= season.season_division_4 %>" /><br /><br />
+
+			<label for="season_active">Active:</label>
+			<input type="checkbox" id="season_active" name="season_active" <% if (season.season_active === 1) { %> checked <% } %>><br /><br />
+
+			<label for="season_start">Start Date:</label>
+			<input type="date" id="season_start" name="season_start" value="<%= season.season_start %>" /><br /><br />
+
+			<label for="season_logo">Season Logo:</label>
+			<input type="file" id="season_logo" name="season_logo" /><br /><br />
+
+			<button type="submit">Save Changes</button>
+		</form>
+	</body>
+</html>

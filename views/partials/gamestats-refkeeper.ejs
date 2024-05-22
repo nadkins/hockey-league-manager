@@ -1,0 +1,39 @@
+<form id="refForm" class="grid" method="POST" action="/gamestats/<%= schedule.schedule_id %>/referees">
+    <input type="hidden" name="attendance_team" value="<%= schedule.home_team_id %>" />
+    <fieldset>
+        <legend>Edit Referees & Scorekeeper</legend>
+    <div class="referee">
+        <% for (let i=1; i <=4; i++) { %>
+            <label for="scheduleRef<%= i %>">Referee <%= i %></label>
+            <select name="schedule_ref<%= i %>" id="scheduleRef<%= i %>">
+                <option value="">Choose Referee</option>
+                <% all_players.forEach(player=> { %>
+                <% if (player.player_id===1) { %>
+                <option value="1" <% if (schedule['scheduleRef'+i].player_id==1) { %> selected <% } %>>TBD</option>
+                <% } else { %>
+                <option value="<%= player.player_id %>" <% if (schedule['scheduleRef'+i].player_id==player.player_id) { %> selected <% } %>>
+                    <%= player.player_first %> <%= player.player_last %>
+                </option>
+                <% } %>
+                <% }); %>
+            </select>
+        <% } %>
+    </div>
+    <div class="scorekeeper">
+        <label for="schedule_scorekeeper">Score Keeper</label>
+        <select name="schedule_scorekeeper" id="schedule_scorekeeper">
+            <option value="">Choose Player</option>
+            <% all_players.forEach(player=> { %>
+                <% if (player.player_id===1) { %>
+                    <option value="1" <% if (schedule.scheduleScorekeeper.player_id==1) { %> selected <% } %>>TBD</option>
+                <% } else { %>
+                    <option value="<%= player.player_id %>" <% if (schedule.scheduleScorekeeper.player_id==player.player_id) { %> selected <% } %>>
+                        <%= player.player_first %> <%= player.player_last %>
+                    </option>
+                <% } %>
+            <% }); %>
+        </select>
+        <br><br>
+        <button id="refSubmitButton" type="button">Update Referees and Score Keeper</button>
+    </div>
+</form>
